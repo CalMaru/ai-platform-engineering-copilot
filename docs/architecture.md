@@ -10,12 +10,12 @@
 하이브리드 구조: LLM이 자연어 해석과 계획 수립을 담당하고, 고정된 실행 엔진이 도구를 순서대로 실행한다.
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  사용자 (자연어)                    │
-└──────────────────────┬──────────────────────────┘
-                       ▼
 ┌──────────────────────────────────────────────────┐
-│                 API Layer (FastAPI)               │
+│              Interface Layer                      │
+│  (1) Core: 직접 호출                               │
+│  (2) CLI: Typer                                   │
+│  (3) API: FastAPI                                 │
+│  (4) MCP: Model Context Protocol                  │
 └──────────────────────┬───────────────────────────┘
                        ▼
 ┌──────────────────────────────────────────────────┐
@@ -282,7 +282,9 @@ context = {
 
 ---
 
-# 9. API 엔드포인트
+# 9. API 엔드포인트 (향후 — 인터페이스 로드맵 3단계)
+
+> Core와 CLI 구현 이후에 추가한다.
 
 ## `POST /pipeline/run`
 
@@ -342,18 +344,13 @@ ai-platform-engineering-copilot/
 │   │   ├── plan_generator.py     # BuildRequest → ExecutionPlan
 │   │   ├── execution_engine.py   # Plan 순서대로 실행
 │   │   └── recovery_advisor.py   # 실패 시 LLM 복구 전략
-│   ├── api/
-│   │   ├── app.py                # FastAPI 앱
-│   │   └── agent/
-│   │       ├── router.py         # 엔드포인트
-│   │       └── schemas.py        # API 스키마
 │   ├── core/
 │   │   ├── config.py             # 설정 (레지스트리, 인증 등)
 │   │   └── llm_client.py         # LLM 추상화
 │   ├── schemas/
 │   │   ├── build_request.py      # BuildRequest, WrapConfig, DeployConfig
 │   │   ├── plan.py               # ExecutionPlan, PlanStep
-│   │   └── result.py             # StepResult
+│   │   └── result.py             # StepResult, PipelineResult
 │   └── tools/
 │       ├── base.py               # Tool 인터페이스
 │       ├── clone_tool.py         # Git 클론
@@ -362,6 +359,10 @@ ai-platform-engineering-copilot/
 │       ├── push_tool.py          # 이미지 push
 │       ├── wrap_tool.py          # 이미지 wrapping
 │       └── deploy_tool.py        # Docker Compose 배포
+│   # --- 향후 인터페이스 확장 ---
+│   # ├── cli/                    # (2단계) Typer CLI
+│   # ├── api/                    # (3단계) FastAPI REST API
+│   # └── mcp/                    # (4단계) MCP 서버
 ├── tests/
 ├── docs/
 ├── main.py
