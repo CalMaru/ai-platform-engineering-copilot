@@ -111,7 +111,67 @@ assert Path(result.data["clone_dir"]).exists()
 
 ---
 
-## Day 5: 정리 + 자격증명 격리 검증
+## Day 5: DinD 스모크 테스트 + 정리 + 자격증명 격리 검증
+
+### Docker-in-Docker 소켓 마운트 스모크 테스트
+
+BuildTool은 컨테이너 안에서 Docker 이미지를 빌드하는 DinD 패턴을 사용한다. Week 2에서 BuildTool을 구현하기 전에, 소켓 마운트가 각 환경에서 동작하는지 확인한다.
+
+#### macOS 테스트
+
+```bash
+# 1. 호스트의 Docker 소켓을 마운트하여 컨테이너 실행
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock docker:cli docker version
+
+# 2. 컨테이너 안에서 간단한 이미지 빌드
+docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd)/tests/fixtures/sample-dockerfile:/workspace \
+  docker:cli sh -c "cd /workspace && docker build -t dind-smoke-test . && docker rmi dind-smoke-test"
+```
+
+- [ ] `tests/fixtures/sample-dockerfile/Dockerfile` 생성 (최소 테스트용)
+  ```dockerfile
+  FROM alpine:3.20
+  RUN echo "DinD smoke test"
+  ```
+- [ ] macOS에서 위 명령 수동 실행하여 성공 확인
+
+#### Windows 테스트
+
+Windows 머신에서 Docker Desktop (WSL2 백엔드) 환경으로 동일한 테스트 수행.
+
+```powershell
+# 1. 소켓 마운트 확인 (Windows Docker Desktop은 내부적으로 WSL2 Linux VM 사용)
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock docker:cli docker version
+
+# 2. DinD 빌드 테스트
+docker run --rm `
+  -v /var/run/docker.sock:/var/run/docker.sock `
+  -v ${PWD}/tests/fixtures/sample-dockerfile:/workspace `
+  docker:cli sh -c "cd /workspace && docker build -t dind-smoke-test . && docker rmi dind-smoke-test"
+```
+
+- [ ] Windows에서 위 명령 수동 실행하여 성공 확인
+- [ ] 실패 시: `npipe:////./pipe/docker_engine` 소켓 마운트 방식 확인
+  ```powershell
+  # npipe 방식 (WSL2가 아닌 Hyper-V 백엔드인 경우)
+  docker run --rm -v //./pipe/docker_engine://./pipe/docker_engine docker:cli docker version
+  ```
+
+#### 결과 기록
+
+| 환경 | Docker 백엔드 | 소켓 경로 | DinD 빌드 | 비고 |
+|------|-------------|----------|----------|------|
+| macOS (로컬) | Docker Desktop | `/var/run/docker.sock` | [ ] 성공 | |
+| Windows (별도 머신) | Docker Desktop (WSL2) | `/var/run/docker.sock` | [ ] 성공 | |
+| Windows (별도 머신) | Docker Desktop (Hyper-V) | `//./pipe/docker_engine` | [ ] 해당 시 | |
+
+> **Note**: 이 테스트 결과를 바탕으로 Week 2 BuildTool 구현 시 `docker_host` 설정 분기를 확정한다.
+
+---
+
+### 자격증명 격리 검증 + 정리
 
 - [ ] 자격증명 격리 기본 검증 테스트
   - ToolResult.message에 자격증명 패턴이 포함되지 않음
@@ -122,7 +182,7 @@ assert Path(result.data["clone_dir"]).exists()
 
 **완료 기준:**
 
-모든 테스트 통과 + CloneTool이 GitPython으로 동작 + 자격증명이 ToolResult에 노출되지 않음.
+모든 테스트 통과 + CloneTool이 GitPython으로 동작 + 자격증명이 ToolResult에 노출되지 않음 + macOS/Windows DinD 스모크 테스트 결과 기록.
 
 ---
 
