@@ -95,5 +95,9 @@ planning/  ✗ execution/   (서로 의존하지 않음)
 
 ## Current State
 
-- Day 1 완료: 의존성 정리, Pydantic v2 데이터 모델 구현 (아직 구 `app/` 구조)
-- `cicd_agent/` 패키지로 리팩토링 예정
+- Day 1 완료: 의존성 정리, Pydantic v2 데이터 모델 구현
+- Day 2 완료: `app/` → `cicd_agent/` 패키지 구조 전환, 새 설계 기준 데이터 모델 재작성
+  - `cicd_agent/models/` — 4개 모델 파일 구현 (request, plan, result, recovery)
+  - `tests/test_models/` — 18개 테스트 통과
+  - `pyproject.toml` — 프로젝트명 `cicd-agent`, 의존성 추가 (gitpython, boto3, python-dotenv, typer)
+  - isort 제거 → ruff `"I"` 규칙으로 대체

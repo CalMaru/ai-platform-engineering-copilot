@@ -20,21 +20,24 @@
 
 ---
 
-## Day 2: 패키지 리팩토링 + 인프라
+## Day 2: 패키지 리팩토링 + 인프라 ✅
 
-- [ ] `app/` → `cicd_agent/` 패키지 구조 전환
-  - `cicd_agent/models/` — 데이터 모델 (기존 `app/schemas/` 에서 이동)
-  - `cicd_agent/infra/` — 횡단 관심사
-  - `cicd_agent/execution/` — 실행 도메인
-  - `cicd_agent/planning/` — 계획 수립 도메인
-- [ ] `pyproject.toml` 업데이트
+- [x] `app/` → `cicd_agent/` 패키지 구조 전환
+  - `cicd_agent/models/` — 데이터 모델
+  - `cicd_agent/infra/` — 횡단 관심사 (placeholder)
+  - `cicd_agent/execution/` — 실행 도메인 (placeholder)
+  - `cicd_agent/planning/` — 계획 수립 도메인 (placeholder)
+- [x] `pyproject.toml` 업데이트
   - 프로젝트명: `cicd-agent`
-  - 의존성 추가: `gitpython`, `boto3`, `python-dotenv`, `typer[all]`
-- [ ] 데이터 모델 업데이트 (새 설계에 맞춤)
+  - 의존성 추가: `gitpython`, `boto3`, `python-dotenv`, `typer`
+  - `isort` 제거 → ruff `"I"` 규칙으로 대체
+- [x] 데이터 모델 업데이트 (새 설계에 맞춤)
   - `models/request.py` — BuildRequest (repo_url, dockerfile_path, registry 등)
   - `models/plan.py` — ExecutionPlan, PlanStep (tool_name, confirm_required 등)
   - `models/result.py` — ToolResult, PipelineResult, ErrorType
   - `models/recovery.py` — RecoveryAdvice (action: retry/skip/abort)
+- [x] 구 `app/` 디렉토리 및 `tests/schemas/` 삭제
+- [x] 18개 테스트 통과, ruff check 통과
 
 **완료 기준:**
 
@@ -66,7 +69,7 @@ assert request.dockerfile_path == "Dockerfile"
   - OutputSanitizer: 2단계 세정
   - 1단계: 실제 비밀 값 정확 매칭
   - 2단계: 정규식 패턴 폴백 (AKIA*, password=*, token=*, PEM 키)
-- [ ] `.env.example` 생성
+- [x] `.env.example` 생성
 - [ ] `tests/test_infra/` 테스트 작성 및 통과 확인
 
 **완료 기준:**

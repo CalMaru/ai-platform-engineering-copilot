@@ -1,24 +1,23 @@
 [project]
-name = "ai-platform-engineering-copilot"
+name = "cicd-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "CI/CD pipeline agent: natural language to build & deploy automation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "boto3>=1.35.0",
     "docker>=7.1.0",
+    "gitpython>=3.1.0",
     "litellm>=1.30.0",
     "paramiko>=3.5.0",
     "pydantic>=2.12.5",
+    "python-dotenv>=1.0.0",
+    "typer>=0.15.0",
 ]
 
 [dependency-groups]
 dev = [
-    "isort>=8.0.1",
     "pytest>=9.0.2",
     "pytest-asyncio>=0.25.0",
     "ruff>=0.15.5",
 ]
-
-[tool.isort]
-profile = "black"
-line_length = 155
